@@ -4,7 +4,29 @@ An automated Model Context Protocol (MCP) server that turns AI coding agents (Cl
 
 Eight tools covering black-box test design, manual and exploratory testing, UI/UX auditing, API contract testing, automation scaffolding, test execution, defect triage, and STLC strategy.
 
-## Quick Installation
+## Installation
+
+Every editor stores MCP config somewhere different. The simplest route is to let
+your agent write it:
+
+> Add the mcp-qa-expert-engine MCP server to my config
+
+Or run one command:
+
+```bash
+# Claude Code
+claude mcp add qa-expert -- npx -y mcp-qa-expert-engine
+
+# VS Code
+code --add-mcp '{"name":"qa-expert","command":"npx","args":["-y","mcp-qa-expert-engine"]}'
+```
+
+<details>
+<summary>Configure it by hand instead</summary>
+
+For Cursor, Antigravity, Codex, or any other MCP client — add this to the server
+block your editor uses (commonly `.cursor/mcp.json`, `.vscode/mcp.json`, or the
+MCP panel in your extension):
 
 ```json
 {
@@ -16,6 +38,11 @@ Eight tools covering black-box test design, manual and exploratory testing, UI/U
   }
 }
 ```
+
+</details>
+
+Restart the editor afterwards — most clients only read MCP config at startup.
+Then ask *"what QA tools do you have?"* and you should see eight.
 
 ## Tools
 
@@ -124,7 +151,7 @@ Dependency direction is strictly one-way: `tools -> design/emitters -> analysis 
 
 ```bash
 npm ci
-npm test        # 119-check smoke suite
+npm test        # 124-check smoke suite
 node index.js   # boots silently on stdio
 ```
 
@@ -146,6 +173,12 @@ Windows behaviour has not been verified on a Windows host. If you run it there,
 a report either way is welcome.
 
 ## Changelog
+
+### 1.2.1
+
+- Fixed: on a field with a declared minimum length, the empty-string and single-character cases were marked "accept" while the minLength-1 case was marked "reject" — the matrix contradicted its own extracted constraint. Both now respect the minimum.
+- Fixed: the test case id truncated mid-word, so `applyPromoCode` produced `TC_PROMOCOD_001`. It now uses a whole word: `TC_PROMO_001`.
+- Five consistency checks added; suite is now 124.
 
 ### 1.2.0
 

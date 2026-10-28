@@ -59,6 +59,8 @@ tailwind.config = {
     html { scroll-behavior: auto; }
   }
   pre, code { font-variant-ligatures: none; }
+  details[open] summary i.fa-chevron-right { transform: rotate(90deg); }
+  summary::-webkit-details-marker { display: none; }
   .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .scroll-x::-webkit-scrollbar { height: 8px; }
   .scroll-x::-webkit-scrollbar-thumb { background: #30363D; border-radius: 4px; }
@@ -69,7 +71,6 @@ tailwind.config = {
 
 <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-3 focus:rounded focus:bg-structure focus:px-4 focus:py-2 focus:font-semibold focus:text-canvas">Skip to content</a>
 
-<!-- ───────────────────────── nav ───────────────────────── -->
 <header class="sticky top-0 z-40 border-b border-edge bg-canvas/85 backdrop-blur">
   <nav class="mx-auto flex max-w-6xl items-center gap-6 px-5 py-3.5" aria-label="Primary">
     <a href="#main" class="flex items-center gap-2.5 font-semibold tracking-tight">
@@ -77,6 +78,7 @@ tailwind.config = {
       <span>QA Expert Engine</span>
     </a>
     <div class="ml-auto hidden items-center gap-6 text-sm text-muted md:flex">
+      <a href="#example" class="transition-colors hover:text-ink">Example</a>
       <a href="#install" class="transition-colors hover:text-ink">Install</a>
       <a href="#tools" class="transition-colors hover:text-ink">Tools</a>
       <a href="#safety" class="transition-colors hover:text-ink">Safety</a>
@@ -91,14 +93,13 @@ tailwind.config = {
 
 <main id="main">
 
-<!-- ───────────────────────── hero ───────────────────────── -->
 <section class="relative overflow-hidden border-b border-edge">
   <div class="pointer-events-none absolute inset-0 grid-faint" aria-hidden="true"></div>
 
   <div class="relative mx-auto max-w-6xl px-5 pb-16 pt-16 sm:pt-20">
 
     <div class="flex flex-wrap items-center gap-2 text-[13px]">
-      <span class="rounded-full border border-accept/30 bg-accept/10 px-2.5 py-1 font-mono font-medium text-accept">v1.2.0</span>
+      <span class="rounded-full border border-accept/30 bg-accept/10 px-2.5 py-1 font-mono font-medium text-accept">v1.2.1</span>
       <span class="rounded-full border border-edgeSoft px-2.5 py-1 text-muted">MIT licensed</span>
       <span class="rounded-full border border-edgeSoft px-2.5 py-1 text-muted">Node 18+</span>
       <span class="rounded-full border border-edgeSoft px-2.5 py-1 text-muted">Zero config</span>
@@ -114,8 +115,6 @@ tailwind.config = {
       server gives it the methodology &mdash; boundary analysis, equivalence partitioning,
       decision tables, state machines &mdash; and a sandbox to execute in.
     </p>
-
-    <!-- primary action: the command -->
     <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
       <div class="flex items-center gap-3 rounded-lg border border-edgeSoft bg-surface px-4 py-3 font-mono text-[15px]">
         <span class="select-none text-accept" aria-hidden="true">$</span>
@@ -130,8 +129,6 @@ tailwind.config = {
         Add to your agent
       </a>
     </div>
-
-    <!-- the transformation: what you give it, what it returns -->
     <div class="mt-14 grid gap-4 lg:grid-cols-[minmax(0,.82fr)_minmax(0,1.18fr)] lg:gap-5">
 
       <figure class="rounded-xl border border-edge bg-surface">
@@ -181,7 +178,6 @@ tailwind.config = {
   </div>
 </section>
 
-<!-- ───────────────────────── positioning ───────────────────────── -->
 <section class="border-b border-edge">
   <div class="mx-auto max-w-6xl px-5 py-16">
     <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Why not just ask the agent?</h2>
@@ -229,26 +225,216 @@ tailwind.config = {
   </div>
 </section>
 
-<!-- ───────────────────────── install ───────────────────────── -->
+<section id="example" class="scroll-mt-20 border-b border-edge">
+  <div class="mx-auto max-w-6xl px-5 py-16">
+    <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">What it looks like in your editor</h2>
+    <p class="mt-3 max-w-reading leading-relaxed text-muted">
+      You never call these tools yourself. You talk to your agent the way you already
+      do, and it picks the right one from the schema. Here is a promo-code feature
+      going from written to tested.
+    </p>
+
+    <div class="mt-10 rounded-xl border border-edge bg-surface">
+      <div class="flex items-center gap-2 border-b border-edge px-4 py-2.5 text-[13px] text-faint">
+        <i class="fa-solid fa-file-code text-[11px]" aria-hidden="true"></i>
+        The code you just wrote
+      </div>
+      <pre class="scroll-x px-4 py-4 font-mono text-[13px] leading-relaxed"><code><span class="text-structure">function</span> applyPromoCode(code, orderTotal, tier) {
+  <span class="text-faint">// code: 6-12 characters</span>
+  <span class="text-faint">// orderTotal: min 0.01, max 10000</span>
+  <span class="text-faint">// tier one of: bronze, silver, gold</span>
+}</code></pre>
+    </div>
+
+    <ol class="mt-8 space-y-4">
+      <li class="rounded-xl border border-edge bg-surface">
+        <div class="flex flex-wrap items-center gap-3 border-b border-edge px-4 py-3">
+          <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accept/15 font-mono text-[12px] font-semibold text-accept">1</span>
+          <span class="font-medium">&ldquo;Design tests for applyPromoCode&rdquo;</span>
+          <span class="ml-auto font-mono text-[12px] text-faint">generate_qa_matrix</span>
+        </div>
+        <div class="scroll-x px-4 py-4">
+          <p class="mb-3 text-[13px] text-muted">It reads the constraints out of your comments and types every parameter:</p>
+          <pre class="font-mono text-[12.5px] leading-6 text-ink"><code>| # | Parameter  | Inferred Type | Constraints                              |
+|---|------------|---------------|------------------------------------------|
+| 1 | code       | string        | minLength=6, maxLength=12                |
+| 2 | orderTotal | number        | min=0.01, max=10000                      |
+| 3 | tier       | enum          | enum=[bronze|silver|gold]                |</code></pre>
+
+          <p class="mb-3 mt-5 text-[13px] text-muted">Then writes the cases — each one atomic, with pre-conditions, steps and a status field:</p>
+          <pre class="font-mono text-[12.5px] leading-6"><code><span class="text-structure">TC_PROMO_001</span>  Verify code is <span class="text-reject">rejected</span> at lower boundary (empty string)
+<span class="text-structure">TC_PROMO_002</span>  Verify code is <span class="text-reject">rejected</span> at lower boundary (single character)
+<span class="text-structure">TC_PROMO_003</span>  Verify code is <span class="text-reject">rejected</span> at lower boundary (minLength - 1)
+<span class="text-structure">TC_PROMO_004</span>  Verify code is <span class="text-accept">accepted</span> at lower boundary (minLength)
+<span class="text-structure">TC_PROMO_005</span>  Verify code is <span class="text-accept">accepted</span> at upper boundary (maxLength - 1)
+<span class="text-structure">TC_PROMO_006</span>  Verify code is <span class="text-accept">accepted</span> at upper boundary (maxLength)
+<span class="text-structure">TC_PROMO_007</span>  Verify code is <span class="text-reject">rejected</span> at upper boundary (maxLength + 1)</code></pre>
+
+          <p class="mt-4 border-t border-edge pt-3 text-[13px] text-faint">
+            35 cases from three parameters &mdash; plus equivalence partitions and six
+            exploratory charters for a human tester. That is the part nobody writes by hand.
+          </p>
+        </div>
+      </li>
+      <li class="rounded-xl border border-edge bg-surface">
+        <div class="flex flex-wrap items-center gap-3 border-b border-edge px-4 py-3">
+          <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accept/15 font-mono text-[12px] font-semibold text-accept">2</span>
+          <span class="font-medium">&ldquo;Write a Playwright test for the checkout flow&rdquo;</span>
+          <span class="ml-auto font-mono text-[12px] text-faint">generate_automation_script</span>
+        </div>
+        <div class="scroll-x px-4 py-4">
+          <pre class="font-mono text-[12.5px] leading-6 text-ink"><code><span class="text-faint">// ─── file: pages/CheckoutPage.js ───</span>
+<span class="text-structure">export class</span> CheckoutPage {
+  constructor(page) {
+    <span class="text-structure">this</span>.promoCode = page.getByTestId(<span class="text-accept">"promo-code"</span>);
+    <span class="text-structure">this</span>.orderTotal = page.getByTestId(<span class="text-accept">"order-total"</span>);
+  }
+
+  <span class="text-faint">/** Step 1: user enters a promo code */</span>
+  <span class="text-structure">async</span> fillPromoCode(value) {
+    <span class="text-structure">await this</span>.promoCode.fill(value);
+  }
+}</code></pre>
+          <p class="mt-4 border-t border-edge pt-3 text-[13px] text-faint">
+            Ask for full coverage and it also emits data-driven cases, a responsive and
+            visual-regression spec, component state tests, an axe accessibility spec and
+            a Gherkin feature file. Waits are always condition-based, never a fixed sleep.
+          </p>
+        </div>
+      </li>
+      <li class="rounded-xl border border-edge bg-surface">
+        <div class="flex flex-wrap items-center gap-3 border-b border-edge px-4 py-3">
+          <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accept/15 font-mono text-[12px] font-semibold text-accept">3</span>
+          <span class="font-medium">&ldquo;Run the tests&rdquo;</span>
+          <span class="ml-auto font-mono text-[12px] text-faint">run_local_test_suite</span>
+        </div>
+        <div class="scroll-x px-4 py-4">
+          <pre class="font-mono text-[12.5px] leading-6 text-ink"><code>[Command]        npx playwright test
+[Status]         <span class="text-reject">FAILED</span>
+[Exit Code]      1
+[Duration]       4182ms
+[Runner Summary] Tests: 1 failed, 6 passed, 7 total</code></pre>
+          <p class="mt-4 border-t border-edge pt-3 text-[13px] text-faint">
+            A failing suite comes back as a readable result your agent can work with &mdash;
+            not a crash. The full stdout and stderr come with it.
+          </p>
+        </div>
+      </li>
+      <li class="rounded-xl border border-edge bg-surface">
+        <div class="flex flex-wrap items-center gap-3 border-b border-edge px-4 py-3">
+          <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accept/15 font-mono text-[12px] font-semibold text-accept">4</span>
+          <span class="font-medium">&ldquo;What broke?&rdquo;</span>
+          <span class="ml-auto font-mono text-[12px] text-faint">parse_error_logs</span>
+        </div>
+        <div class="scroll-x px-4 py-4">
+          <pre class="font-mono text-[12.5px] leading-6"><code>{
+  <span class="text-structure">"defectId"</span>: <span class="text-accept">"DEF-222ECD0A"</span>,
+  <span class="text-structure">"errorClass"</span>: <span class="text-accept">"TypeError"</span>,
+  <span class="text-structure">"severity"</span>: <span class="text-accept">"high"</span>,
+  <span class="text-structure">"component"</span>: <span class="text-accept">"Promo"</span>,
+  <span class="text-structure">"likelyOrigin"</span>: {
+    <span class="text-structure">"file"</span>: <span class="text-accept">"/app/src/promo.js"</span>, <span class="text-structure">"line"</span>: 23,
+    <span class="text-structure">"rationale"</span>: <span class="text-accept">"First stack frame resolving to application code"</span>
+  },
+  <span class="text-structure">"suggestedFixVectors"</span>: [
+    <span class="text-accept">"Guard the access before dereferencing \"percent\" — use optional"</span>
+    <span class="text-accept">" chaining or an explicit null check."</span>
+  ]
+}</code></pre>
+          <p class="mt-4 border-t border-edge pt-3 text-[13px] text-faint">
+            It skips the <code class="text-ink">node_modules</code> frames and points at the first line that is
+            actually yours. Ask for <code class="text-ink">format: "jira"</code> and the same record comes back as
+            a ticket you can paste straight in.
+          </p>
+        </div>
+      </li>
+    </ol>
+
+    <p class="mt-8 max-w-reading text-[14px] leading-relaxed text-muted">
+      Before release, the same conversation continues: ask for a manual test plan, a
+      UI/UX checklist, API contract tests, or the whole test strategy. Each is one
+      sentence to your agent.
+    </p>
+  </div>
+</section>
+
 <section id="install" class="scroll-mt-20 border-b border-edge">
   <div class="mx-auto max-w-6xl px-5 py-16">
     <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Add it to your agent</h2>
     <p class="mt-3 max-w-reading leading-relaxed text-muted">
-      One block of JSON. There is nothing to install first &mdash; <code class="rounded bg-surface px-1.5 py-0.5 font-mono text-[13px] text-ink">npx</code>
+      Nothing to install first. <code class="rounded bg-surface px-1.5 py-0.5 font-mono text-[13px] text-ink">npx</code>
       fetches the package on first run and your agent starts it over stdio.
     </p>
-
-    <div class="mt-9 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div class="mt-9 rounded-xl border border-accept/30 bg-accept/[0.04] p-5 sm:p-6">
+      <h3 class="flex items-center gap-2.5 font-semibold">
+        <i class="fa-solid fa-wand-magic-sparkles text-accept" aria-hidden="true"></i>
+        Easiest: ask your agent
+      </h3>
+      <p class="mt-3 max-w-reading text-[14px] leading-relaxed text-muted">
+        Every editor stores MCP config in a different place and shape. Your agent
+        already knows where its own lives, so let it do the writing.
+      </p>
+      <div class="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-edgeSoft bg-surface px-4 py-3">
+        <i class="fa-regular fa-comment text-faint" aria-hidden="true"></i>
+        <span id="agent-prompt" class="text-[15px] text-ink">Add the mcp-qa-expert-engine MCP server to my config</span>
+        <button type="button" data-copy="#agent-prompt"
+                class="ml-auto rounded px-2 py-1 text-muted transition-colors hover:bg-raised hover:text-ink"
+                aria-label="Copy prompt">
+          <i class="fa-regular fa-copy" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+    <h3 class="mt-10 font-semibold">Or run one command</h3>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
 
       <div class="rounded-xl border border-edge bg-surface">
-        <div class="flex flex-wrap items-center gap-2 border-b border-edge px-4 py-2.5">
-          <span class="font-mono text-[13px] text-muted">claude_config.json</span>
-          <button type="button" data-copy="#config-json"
-                  class="ml-auto inline-flex items-center gap-2 rounded-md border border-edgeSoft px-2.5 py-1 text-[13px] text-muted transition-colors hover:border-muted hover:text-ink">
-            <i class="fa-regular fa-copy" aria-hidden="true"></i><span>Copy</span>
+        <div class="flex items-center gap-2 border-b border-edge px-4 py-2.5 text-[13px] text-faint">Claude Code</div>
+        <div class="flex items-start gap-3 px-4 py-3.5">
+          <code id="cmd-claude" class="scroll-x font-mono text-[13px] leading-relaxed text-ink">claude mcp add qa-expert -- npx -y mcp-qa-expert-engine</code>
+          <button type="button" data-copy="#cmd-claude"
+                  class="ml-auto shrink-0 rounded px-2 py-1 text-muted transition-colors hover:bg-raised hover:text-ink"
+                  aria-label="Copy Claude Code command">
+            <i class="fa-regular fa-copy" aria-hidden="true"></i>
           </button>
         </div>
-        <pre class="scroll-x px-4 py-4 font-mono text-[13px] leading-relaxed"><code id="config-json">{
+      </div>
+
+      <div class="rounded-xl border border-edge bg-surface">
+        <div class="flex items-center gap-2 border-b border-edge px-4 py-2.5 text-[13px] text-faint">VS Code</div>
+        <div class="flex items-start gap-3 px-4 py-3.5">
+          <code id="cmd-vscode" class="scroll-x font-mono text-[13px] leading-relaxed text-ink">code --add-mcp '{"name":"qa-expert","command":"npx","args":["-y","mcp-qa-expert-engine"]}'</code>
+          <button type="button" data-copy="#cmd-vscode"
+                  class="ml-auto shrink-0 rounded px-2 py-1 text-muted transition-colors hover:bg-raised hover:text-ink"
+                  aria-label="Copy VS Code command">
+            <i class="fa-regular fa-copy" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <details class="mt-6 rounded-xl border border-edge bg-surface">
+      <summary class="cursor-pointer list-none px-5 py-4 font-medium transition-colors hover:text-ink">
+        <span class="inline-flex items-center gap-2.5">
+          <i class="fa-solid fa-chevron-right text-[11px] text-faint transition-transform" aria-hidden="true"></i>
+          Configure it by hand instead
+        </span>
+      </summary>
+      <div class="border-t border-edge px-5 pb-5 pt-4">
+        <p class="max-w-reading text-[14px] leading-relaxed text-muted">
+          For Cursor, Antigravity, Codex, or any other MCP client. Add this to the
+          server block your editor uses &mdash; commonly
+          <code class="font-mono text-[12.5px] text-structure">.cursor/mcp.json</code>,
+          <code class="font-mono text-[12.5px] text-structure">.vscode/mcp.json</code>,
+          or the MCP panel in your extension.
+        </p>
+        <div class="mt-4 rounded-lg border border-edgeSoft bg-raised">
+          <div class="flex items-center gap-2 border-b border-edgeSoft px-4 py-2.5">
+            <span class="font-mono text-[13px] text-muted">mcp.json</span>
+            <button type="button" data-copy="#config-json"
+                    class="ml-auto inline-flex items-center gap-2 rounded-md border border-edgeSoft px-2.5 py-1 text-[13px] text-muted transition-colors hover:border-muted hover:text-ink">
+              <i class="fa-regular fa-copy" aria-hidden="true"></i><span>Copy</span>
+            </button>
+          </div>
+          <pre class="scroll-x px-4 py-4 font-mono text-[13px] leading-relaxed"><code id="config-json">{
   <span class="text-structure">"mcpServers"</span>: {
     <span class="text-structure">"qa-expert"</span>: {
       <span class="text-structure">"command"</span>: <span class="text-accept">"npx"</span>,
@@ -256,43 +442,20 @@ tailwind.config = {
     }
   }
 }</code></pre>
-      </div>
-
-      <div class="rounded-xl border border-edge bg-surface p-5">
-        <h3 class="font-semibold">Where that file lives</h3>
-        <ul class="mt-4 space-y-3.5 text-[14px] leading-relaxed text-muted">
-          <li>
-            <span class="block font-medium text-ink">Claude Code</span>
-            Run <code class="font-mono text-[12.5px] text-structure">claude mcp add</code>, or edit the MCP block in your settings file.
-          </li>
-          <li>
-            <span class="block font-medium text-ink">Cursor</span>
-            Settings &rsaquo; MCP &rsaquo; Add new server, or <code class="font-mono text-[12.5px] text-structure">.cursor/mcp.json</code> in the project.
-          </li>
-          <li>
-            <span class="block font-medium text-ink">VS Code</span>
-            <code class="font-mono text-[12.5px] text-structure">.vscode/mcp.json</code>, or the MCP panel in your AI extension.
-          </li>
-          <li>
-            <span class="block font-medium text-ink">Codex &amp; Antigravity</span>
-            Any MCP-compatible client reads the same <code class="font-mono text-[12.5px] text-structure">mcpServers</code> shape.
-          </li>
-        </ul>
-        <div class="mt-5 rounded-lg border border-edgeSoft bg-raised p-3.5 text-[13px] leading-relaxed text-muted">
-          <i class="fa-solid fa-circle-info mr-1.5 text-structure" aria-hidden="true"></i>
-          Restart the editor after saving. The server reports eight tools on connect.
         </div>
       </div>
-    </div>
+    </details>
 
-    <p class="mt-6 text-[14px] text-muted">
-      Prefer a pinned version? Use
-      <code class="rounded bg-surface px-1.5 py-0.5 font-mono text-[13px] text-ink">"args": ["-y", "mcp-qa-expert-engine@1.2.0"]</code>.
+    <p class="mt-6 max-w-reading text-[14px] leading-relaxed text-muted">
+      Restart the editor afterwards &mdash; most clients only read MCP config at startup.
+      Then ask <span class="text-ink">&ldquo;what QA tools do you have?&rdquo;</span> and you should see eight.
+      To pin a version, append
+      <code class="rounded bg-raised px-1.5 py-0.5 font-mono text-[13px] text-ink">@1.2.1</code>
+      to the package name.
     </p>
   </div>
 </section>
 
-<!-- ───────────────────────── tools ───────────────────────── -->
 <section id="tools" class="scroll-mt-20 border-b border-edge">
   <div class="mx-auto max-w-6xl px-5 py-16">
     <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Eight tools, grouped by when you reach for them</h2>
@@ -301,8 +464,6 @@ tailwind.config = {
       <span class="font-mono text-[13px] text-accept">required</span> must be supplied;
       the rest have sensible defaults.
     </p>
-
-    <!-- stage 1 -->
     <div class="mt-12">
       <div class="flex items-baseline gap-3">
         <h3 class="text-lg font-semibold">Design the tests</h3>
@@ -360,8 +521,6 @@ tailwind.config = {
         </article>
       </div>
     </div>
-
-    <!-- stage 2 -->
     <div class="mt-12">
       <div class="flex items-baseline gap-3">
         <h3 class="text-lg font-semibold">Generate the code</h3>
@@ -405,8 +564,6 @@ tailwind.config = {
         </article>
       </div>
     </div>
-
-    <!-- stage 3 -->
     <div class="mt-12">
       <div class="flex items-baseline gap-3">
         <h3 class="text-lg font-semibold">Run it and read the wreckage</h3>
@@ -447,8 +604,6 @@ tailwind.config = {
         </article>
       </div>
     </div>
-
-    <!-- stage 4 -->
     <div class="mt-12">
       <div class="flex items-baseline gap-3">
         <h3 class="text-lg font-semibold">Plan the programme</h3>
@@ -477,7 +632,6 @@ tailwind.config = {
   </div>
 </section>
 
-<!-- ───────────────────────── safety ───────────────────────── -->
 <section id="safety" class="scroll-mt-20 border-b border-edge">
   <div class="mx-auto max-w-6xl px-5 py-16">
     <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">What it will refuse to run</h2>
@@ -537,7 +691,6 @@ tailwind.config = {
   </div>
 </section>
 
-<!-- ───────────────────────── requirements ───────────────────────── -->
 <section id="requirements" class="scroll-mt-20 border-b border-edge">
   <div class="mx-auto max-w-6xl px-5 py-16">
     <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Before you install</h2>
@@ -557,7 +710,7 @@ tailwind.config = {
       </div>
       <div>
         <h3 class="flex items-center gap-2 font-semibold"><i class="fa-solid fa-flask-vial text-accept" aria-hidden="true"></i>Verification</h3>
-        <p class="mt-2.5 text-[14px] leading-relaxed text-muted">119 checks cover the protocol, all eight tools, and every injection and traversal case shown above.</p>
+        <p class="mt-2.5 text-[14px] leading-relaxed text-muted">124 checks cover the protocol, all eight tools, and every injection and traversal case shown above.</p>
       </div>
     </div>
 
@@ -573,7 +726,6 @@ tailwind.config = {
   </div>
 </section>
 
-<!-- ───────────────────────── closing ───────────────────────── -->
 <section class="border-b border-edge">
   <div class="mx-auto max-w-6xl px-5 py-16 text-center">
     <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Give your agent the methodology</h2>
@@ -600,7 +752,6 @@ tailwind.config = {
 
 </main>
 
-<!-- ───────────────────────── footer ───────────────────────── -->
 <footer class="mx-auto max-w-6xl px-5 py-12">
   <div class="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
     <div>
@@ -626,7 +777,7 @@ tailwind.config = {
 
   <div class="mt-10 flex flex-col gap-2 border-t border-edge pt-6 text-[13px] text-faint sm:flex-row sm:items-center sm:justify-between">
     <p>Released under the MIT licence.</p>
-    <p class="font-mono">mcp-qa-expert-engine@1.2.0</p>
+    <p class="font-mono">mcp-qa-expert-engine@1.2.1</p>
   </div>
 </footer>
 

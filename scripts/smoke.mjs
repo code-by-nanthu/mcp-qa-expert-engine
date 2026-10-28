@@ -297,6 +297,9 @@ const requests = [
   call(135, "run_local_test_suite", { command: "npm test %PATH%" }),
   call(136, "run_local_test_suite", { command: "npm test ^& calc" }),
 
+  call(140, "generate_qa_matrix", { codeSnippet: "function applyPromoCode(code) {\n  // code: 6-12 characters\n}" }),
+  call(141, "generate_qa_matrix", { codeSnippet: "function setNote(note) {}" }),
+
   // Negative: missing / malformed arguments
   call(30, "generate_qa_matrix", {}),
   call(31, "parse_error_logs", {}),
@@ -346,8 +349,6 @@ const get = (id) => {
 const isToolError = (id) => get(id).result?.isError === true;
 const isProtocolError = (id) => get(id).error !== undefined;
 
-/* ── Protocol invariants ────────────────────────────────────────────────── */
-
 group("Protocol invariants");
 
 check("stdout contains only parseable JSON-RPC lines", () => {
@@ -390,8 +391,6 @@ check("every tool advertises a schema with required fields", () => {
     );
   }
 });
-
-/* ── Tool 1 ─────────────────────────────────────────────────────────────── */
 
 group("Tool 1 — generate_qa_matrix");
 
@@ -482,8 +481,6 @@ check("output is input-dependent, not a static template", () => {
   assert(!b.includes("seatCount"), "Output leaked parameters from a different input");
 });
 
-/* ── Tool 2 ─────────────────────────────────────────────────────────────── */
-
 group("Tool 2 — run_local_test_suite");
 
 check("executes an approved command and captures stdout", () => {
@@ -506,8 +503,6 @@ check("failing suite returns isError with the full captured log", () => {
 check("extracts a runner summary line", () => {
   assertIncludes(text(get(13)), "Runner Summary", "summary");
 });
-
-/* ── Tool 3 ─────────────────────────────────────────────────────────────── */
 
 group("Tool 3 — parse_error_logs");
 
@@ -553,8 +548,6 @@ check("defect ids are deterministic across calls", () => {
   assert(/^DEF-[0-9A-F]{8}$/.test(a), `Malformed defect id: ${a}`);
 });
 
-/* ── Tool 4 ─────────────────────────────────────────────────────────────── */
-
 group("Tool 4 — generate_automation_script");
 
 check("emits a Playwright Page Object Model", () => {
@@ -589,8 +582,6 @@ check("returns plain text, not JSON (PRD section 4)", () => {
   const out = text(get(17)).trim();
   assert(!out.startsWith("{"), "Tool 4 must return a plain-text script block");
 });
-
-/* ── Tool 3 defect report completeness ─────────────────────────────────── */
 
 group("Tool 3 — defect report completeness");
 
@@ -663,8 +654,6 @@ check("invalid format enum is rejected", () => {
   assert(isToolError(93), "Expected isError:true");
   assertIncludes(text(get(93)), "jira", "allowed values");
 });
-
-/* ── Tool 4 extended coverage ───────────────────────────────────────────── */
 
 group("Tool 4 — extended coverage");
 
@@ -757,8 +746,6 @@ check("invalid coverage enum is rejected", () => {
   assertIncludes(text(get(84)), "functional", "allowed values");
 });
 
-/* ── Tool 5 ─────────────────────────────────────────────────────────────── */
-
 group("Tool 5 — generate_ui_ux_checklist");
 
 check("emits the responsive viewport matrix at documented breakpoints", () => {
@@ -833,8 +820,6 @@ check("invalid scope enum is rejected with the allowed list", () => {
   assert(isToolError(63), "Expected isError:true");
   assertIncludes(text(get(63)), "accessibility", "allowed values");
 });
-
-/* ── Tool 6 ─────────────────────────────────────────────────────────────── */
 
 group("Tool 6 — generate_manual_test_plan");
 
@@ -924,8 +909,6 @@ check("missing featureSpec returns isError", () => {
   assert(isToolError(73), "Expected isError:true");
 });
 
-/* ── Tool 7 ─────────────────────────────────────────────────────────────── */
-
 group("Tool 7 — generate_api_contract_tests");
 
 check("parses REST endpoints from the specification", () => {
@@ -998,8 +981,6 @@ check("missing apiSpec returns isError", () => {
   assert(!isProtocolError(104), "Must not be a protocol error");
   assert(isToolError(104), "Expected isError:true");
 });
-
-/* ── Tool 8 ─────────────────────────────────────────────────────────────── */
 
 group("Tool 8 — generate_test_strategy");
 
@@ -1103,8 +1084,6 @@ check("missing projectContext returns isError", () => {
   assert(isToolError(113), "Expected isError:true");
 });
 
-/* ── Regressions (fixed in 1.1.1) ──────────────────────────────────────── */
-
 group("Regressions");
 
 check("a length RANGE is not read as an exact length", () => {
@@ -1157,8 +1136,6 @@ check("'and' inside a noun phrase does not split", () => {
   assertIncludes(out, "Steps     : 1 derived", "terms and conditions must stay one step");
 });
 
-/* ── Parser coverage (fixed in 1.2.0) ──────────────────────────────────── */
-
 group("Parser coverage");
 
 check("generic type parameters do not hide the argument list", () => {
@@ -1179,8 +1156,6 @@ check("a single-line interface yields its fields", () => {
     assertIncludes(out, field, "interface field");
   }
 });
-
-/* ── Windows shim handling ─────────────────────────────────────────────── */
 
 group("Windows shims");
 
@@ -1204,7 +1179,52 @@ check("cmd.exe escape character is rejected", () => {
   assertIncludes(text(get(136)), "shell_metacharacter", "rejection reason");
 });
 
-/* ── Input validation ───────────────────────────────────────────────────── */
+group("Boundary consistency");
+
+check("a minimum length rejects the empty string", () => {
+  const out = text(get(140));
+  const line = out.split("\n").find((l) => /^TC_\w+_\d+.*empty string/.test(l));
+  assert(line, "no empty-string case emitted");
+  assert(
+    /rejected/.test(line),
+    `minLength=6 but the empty string is not rejected: ${line.trim()}`
+  );
+});
+
+check("a minimum length rejects a single character", () => {
+  const out = text(get(140));
+  const line = out.split("\n").find((l) => /^TC_\w+_\d+.*single character/.test(l));
+  assert(line, "no single-character case emitted");
+  assert(
+    /rejected/.test(line),
+    `minLength=6 but one character is not rejected: ${line.trim()}`
+  );
+});
+
+check("boundary verdicts do not contradict each other", () => {
+  const out = text(get(140));
+  const verdict = (pattern) => {
+    const l = out.split("\n").find((x) => new RegExp(`^TC_\\w+_\\d+.*${pattern}`).test(x));
+    return l ? (/rejected/.test(l) ? "reject" : "accept") : null;
+  };
+  assert(verdict("empty string") === "reject", "empty must reject");
+  assert(verdict("minLength - 1") === "reject", "below minimum must reject");
+  assert(verdict("\\(minLength\\)") === "accept", "at minimum must accept");
+});
+
+check("an unconstrained string still accepts short input", () => {
+  const out = text(get(141));
+  assert(
+    !/rejected at lower boundary \(single character\)/.test(out),
+    "a field with no declared minimum must not reject a single character"
+  );
+});
+
+check("module id uses a whole word, not a mid-word slice", () => {
+  const out = text(get(140));
+  assert(/TC_PROMO_001/.test(out), "expected TC_PROMO_001");
+  assert(!/TC_PROMOCOD/.test(out), "module code truncated mid-word");
+});
 
 group("Negative — input validation");
 
@@ -1233,8 +1253,6 @@ check("unknown tool name returns a structured error", () => {
   assert(isToolError(35), "Expected isError:true");
   assertIncludes(text(get(35)), "Unknown tool", "error message");
 });
-
-/* ── Command injection ──────────────────────────────────────────────────── */
 
 group("Negative — command injection");
 
@@ -1269,8 +1287,6 @@ check("rejection happens before execution (no subprocess output leaked)", () => 
   const out = text(get(40));
   assert(!out.includes("Exit Code"), "Command was executed before the safety gate");
 });
-
-/* ── Workspace escape ───────────────────────────────────────────────────── */
 
 group("Negative — workspace boundary");
 

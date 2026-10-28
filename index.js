@@ -22,7 +22,7 @@ import { toolError } from "./lib/format/result.js";
 import { HANDLERS, TOOLS } from "./lib/tools/registry.js";
 
 const server = new Server(
-  { name: "qa-expert-engine", version: "1.2.0" },
+  { name: "qa-expert-engine", version: "1.2.1" },
   { capabilities: { tools: {} } }
 );
 
