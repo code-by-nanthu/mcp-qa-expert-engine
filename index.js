@@ -21,12 +21,8 @@ import { ToolInputError } from "./lib/errors.js";
 import { toolError } from "./lib/format/result.js";
 import { HANDLERS, TOOLS } from "./lib/tools/registry.js";
 
-/* ──────────────────────────────────────────────────────────────────────────
- * Server wiring
- * ────────────────────────────────────────────────────────────────────────── */
-
 const server = new Server(
-  { name: "qa-expert-engine", version: "1.1.0" },
+  { name: "qa-expert-engine", version: "1.2.0" },
   { capabilities: { tools: {} } }
 );
 

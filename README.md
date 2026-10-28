@@ -36,7 +36,7 @@ Eight tools covering black-box test design, manual and exploratory testing, UI/U
 
 **`codeSnippet`** (string, required)
 
-Parses function signatures (JS/TS/Python), TypeScript interfaces, git diffs, and markdown requirement bullets. Extracts parameters, infers types, and mines declared constraints. Emits:
+Parses function signatures (JS/TS/Python), TypeScript interfaces, git diffs, and markdown requirement bullets. Extracts parameters, infers types, and mines declared constraints — numeric ranges (`min 1, max 500`, `between 1 and 12`), length ranges (`6-12 characters`), exact lengths (`16 digits`), enum unions (`'GB' | 'US'`) and nullability. Emits:
 
 - **Parameter inventory** with inferred types and detected constraints
 - **Test case specification** carrying all nine standard attributes — ID (`TC_<MODULE>_001`), Component/Module, action-verb Title, Pre-conditions, Test Steps, Test Data, Expected Result, Actual Result, Status
@@ -124,11 +124,51 @@ Dependency direction is strictly one-way: `tools -> design/emitters -> analysis 
 
 ```bash
 npm ci
-npm test        # 105-check smoke suite
+npm test        # 119-check smoke suite
 node index.js   # boots silently on stdio
 ```
 
 `scripts/smoke.mjs` drives a real stdio JSON-RPC session against the built entrypoint and verifies that stdout carries protocol JSON only, that no tool fault escapes as a JSON-RPC error, and that command injection and workspace escape attempts are refused before execution.
+
+## Platform Support
+
+macOS and Linux are fully supported and exercised by the test suite.
+
+On **Windows**, `run_local_test_suite` runs through `cmd.exe`, because npm, npx
+and yarn resolve to `.cmd` shims that Node refuses to spawn without a shell.
+The command sanitizer compensates by rejecting every cmd.exe metacharacter
+(`& | < > ( ) % ^ ` $ ;` and newlines) before execution, so no command
+separator can reach the shell — but on Windows the protection is the filter
+rather than the absence of a shell. The other seven tools generate text and
+behave identically on every platform.
+
+Windows behaviour has not been verified on a Windows host. If you run it there,
+a report either way is welcome.
+
+## Changelog
+
+### 1.2.0
+
+- Fixed: generic type parameters hid the argument list, so `function fetchPage<T>(url, limit)` extracted nothing.
+- Fixed: a single-line class body (`class Cart { addItem(sku) {} }`) extracted nothing.
+- Fixed: a single-line interface (`interface Order { id: string }`) extracted nothing.
+- Added: Windows `.cmd`/`.exe` shims are matched against the runner allowlist, so `npm.cmd test` is recognised — and destructive tokens are caught through their shims too (`rm.cmd`, `sudo.exe`).
+- Added: `%` and `^` are now rejected as cmd.exe metacharacters on every platform.
+- Suite is now 119 checks. A ten-shape parser corpus that previously passed 7/10 now passes 10/10.
+
+### 1.1.1
+
+- Fixed: a length range such as `6-12 characters` was read as an exact length of 12, so boundary cases were generated around the wrong value. Ranges and exact lengths are now distinguished.
+- Fixed: `and` joining two actions ("enters a code **and** sees the total") collapsed into a single step, producing welded locator names. It now splits on `and` only where it joins two actions, leaving noun phrases ("terms and conditions") intact.
+- Fixed: a field with a declared length but a numeric-sounding name (`cardNumber`, `16 digits`) was typed as a number. 16 digits exceeds `MAX_SAFE_INTEGER` and leading zeros are lost, so an explicit length constraint now outranks the name.
+- Seven regression tests added; suite is now 112 checks.
+
+### 1.1.0
+
+- Added `generate_ui_ux_checklist`, `generate_manual_test_plan`, `generate_api_contract_tests` and `generate_test_strategy`.
+- `generate_qa_matrix` gained nine-attribute test cases, decision tables, state transition models and exploratory charters.
+- `parse_error_logs` gained environment extraction, pre-conditions, evidence lists and Jira rendering.
+- `generate_automation_script` gained data-driven, responsive/visual-regression, component-state, accessibility and BDD output.
 
 ## License
 

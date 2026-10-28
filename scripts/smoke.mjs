@@ -174,6 +174,17 @@ const PROJECT_CONTEXT =
   "Multi-tenant SaaS billing dashboard for e-commerce merchants. React + Node microservices. " +
   "50k daily active users, peak 1200 rps. PCI DSS and GDPR in scope.";
 
+// Regression fixtures for the 1.1.1 fixes.
+const RANGE_SPEC = `function applyDiscount(code, cardNumber) {
+  // code: 6-12 characters
+  // cardNumber: 16 digits
+}`;
+
+// Parser shapes that returned zero parameters before 1.2.0.
+const TS_GENERIC = `function fetchPage<T extends Record<string, unknown>>(url: string, limit?: number) {}`;
+const ONE_LINE_CLASS = `class Cart { addItem(sku, quantity) {} }`;
+const ONE_LINE_INTERFACE = `interface Order { id: string; items: Item[]; meta: Record<string, unknown>; }`;
+
 const call = (id, name, args) => ({
   jsonrpc: "2.0",
   id,
@@ -265,6 +276,26 @@ const requests = [
   call(111, "generate_test_strategy", { projectContext: "internal hack-week prototype", riskProfile: "prototype" }),
   call(112, "generate_test_strategy", { projectContext: PROJECT_CONTEXT, riskProfile: "regulated" }),
   call(113, "generate_test_strategy", {}),
+
+  call(120, "generate_qa_matrix", { codeSnippet: RANGE_SPEC }),
+  call(121, "generate_automation_script", {
+    framework: "playwright",
+    flowDescription: "user enters a discount code and sees the reduced total",
+    coverage: "functional",
+  }),
+  call(122, "generate_automation_script", {
+    framework: "playwright",
+    flowDescription: "user accepts the terms and conditions",
+    coverage: "functional",
+  }),
+
+  call(130, "generate_qa_matrix", { codeSnippet: TS_GENERIC }),
+  call(131, "generate_qa_matrix", { codeSnippet: ONE_LINE_CLASS }),
+  call(132, "generate_qa_matrix", { codeSnippet: ONE_LINE_INTERFACE }),
+  call(133, "run_local_test_suite", { command: "npm test rm.cmd" }),
+  call(134, "run_local_test_suite", { command: "npm run sudo.exe" }),
+  call(135, "run_local_test_suite", { command: "npm test %PATH%" }),
+  call(136, "run_local_test_suite", { command: "npm test ^& calc" }),
 
   // Negative: missing / malformed arguments
   call(30, "generate_qa_matrix", {}),
@@ -1070,6 +1101,107 @@ check("risk profile changes the plan rather than relabelling it", () => {
 check("missing projectContext returns isError", () => {
   assert(!isProtocolError(113), "Must not be a protocol error");
   assert(isToolError(113), "Expected isError:true");
+});
+
+/* ── Regressions (fixed in 1.1.1) ──────────────────────────────────────── */
+
+group("Regressions");
+
+check("a length RANGE is not read as an exact length", () => {
+  const out = text(get(120));
+  const row = out.split("\n").find((l) => /^\|\s*\d+\s*\|\s*code\s/.test(l));
+  assert(row, "code parameter row not found");
+  assert(/minLength=6/.test(row), `expected minLength=6, got: ${row.trim()}`);
+  assert(/maxLength=12/.test(row), `expected maxLength=12, got: ${row.trim()}`);
+  assert(!/minLength=12/.test(row), "range tail wrongly used as the minimum");
+});
+
+check("range boundaries straddle both ends, not just the upper", () => {
+  const out = text(get(120));
+  for (const n of ["5", "6", "11", "12", "13"]) {
+    assertIncludes(out, `<string of length ${n}>`, "range boundary case");
+  }
+});
+
+check("an exact length is still read as exact", () => {
+  const out = text(get(120));
+  const row = out.split("\n").find((l) => /cardNumber/.test(l) && l.startsWith("|"));
+  assert(/minLength=16/.test(row) && /maxLength=16/.test(row), `expected 16/16, got: ${row.trim()}`);
+});
+
+check("a length constraint outranks a numeric-sounding name", () => {
+  const out = text(get(120));
+  const row = out.split("\n").find((l) => /cardNumber/.test(l) && l.startsWith("|"));
+  assert(
+    /\|\s*string\s*\|/.test(row),
+    `cardNumber must be a string (16 digits exceeds MAX_SAFE_INTEGER), got: ${row.trim()}`
+  );
+});
+
+check("numeric fields without a length constraint stay numeric", () => {
+  const out = text(get(10));
+  const row = out.split("\n").find((l) => /seatCount/.test(l) && l.startsWith("|"));
+  assert(/\|\s*number\s*\|/.test(row), `seatCount must stay a number, got: ${row.trim()}`);
+});
+
+check("'and' joining two actions splits into two steps", () => {
+  const out = text(get(121));
+  assertIncludes(out, "Steps     : 2 derived", "step count");
+  assert(!/discountCodeSees/.test(out), "step boundary missed; locator names welded together");
+  assertIncludes(out, "discount-code", "first step locator");
+  assertIncludes(out, "reduced-total", "second step locator");
+});
+
+check("'and' inside a noun phrase does not split", () => {
+  const out = text(get(122));
+  assertIncludes(out, "Steps     : 1 derived", "terms and conditions must stay one step");
+});
+
+/* ── Parser coverage (fixed in 1.2.0) ──────────────────────────────────── */
+
+group("Parser coverage");
+
+check("generic type parameters do not hide the argument list", () => {
+  const out = text(get(130));
+  assertIncludes(out, "url", "first parameter");
+  assertIncludes(out, "limit", "second parameter");
+});
+
+check("a single-line class body yields its method parameters", () => {
+  const out = text(get(131));
+  assertIncludes(out, "sku", "first parameter");
+  assertIncludes(out, "quantity", "second parameter");
+});
+
+check("a single-line interface yields its fields", () => {
+  const out = text(get(132));
+  for (const field of ["id", "items", "meta"]) {
+    assertIncludes(out, field, "interface field");
+  }
+});
+
+/* ── Windows shim handling ─────────────────────────────────────────────── */
+
+group("Windows shims");
+
+check("a destructive token is caught through its .cmd shim", () => {
+  assert(isToolError(133), "npm test rm.cmd must be rejected");
+  assertIncludes(text(get(133)), "destructive_token", "rejection reason");
+});
+
+check("a destructive token is caught through its .exe shim", () => {
+  assert(isToolError(134), "npm run sudo.exe must be rejected");
+  assertIncludes(text(get(134)), "destructive_token", "rejection reason");
+});
+
+check("cmd.exe variable expansion is rejected", () => {
+  assert(isToolError(135), "%PATH% must be rejected");
+  assertIncludes(text(get(135)), "shell_metacharacter", "rejection reason");
+});
+
+check("cmd.exe escape character is rejected", () => {
+  assert(isToolError(136), "^ must be rejected");
+  assertIncludes(text(get(136)), "shell_metacharacter", "rejection reason");
 });
 
 /* ── Input validation ───────────────────────────────────────────────────── */
