@@ -92,6 +92,34 @@ Handles Node, browser, Python, Java, and Jest/Vitest failure output. Returns a d
 
 ---
 
+## Project Structure
+
+```
+index.js                      SDK transport wiring and boot. Nothing else.
+lib/
+  config.js                   Operational limits and the workspace root
+  errors.js                   ToolInputError — caller mistake, not server fault
+  validation.js               Hand-rolled argument validation
+  format/
+    text.js                   Case helpers, table rendering, ANSI stripping
+    result.js                 MCP result envelopes (toolText / toolJson / toolError)
+  security/
+    workspace.js              Workspace boundary, including symlink escape
+    command.js                Test-command sanitizer
+    exec.js                   execFile with shell:false; stdio piped
+  analysis/
+    source.js                 Parameter extraction, constraints, type inference
+    flows.js                  User-flow parsing and action classification
+    risk.js                   Flow risk weighting
+    error-logs.js             Stack trace parsing and environment extraction
+  catalog/                    Static domain data: defects, ui, manual, strategy, api
+  design/                     BVA, test cases, decision tables, state transitions, charters
+  emitters/                   e2e (POM), extensions (DDT/VRT/a11y/BDD), api contracts
+  tools/                      One module per tool, plus registry.js
+```
+
+Dependency direction is strictly one-way: `tools -> design/emitters -> analysis -> format/security -> config`. Tools are leaves — nothing imports them except the registry — and nothing imports the entrypoint. There are no cycles.
+
 ## Local Development
 
 ```bash
@@ -100,7 +128,7 @@ npm test        # 105-check smoke suite
 node index.js   # boots silently on stdio
 ```
 
-`scripts/smoke.mjs` drives a real stdio JSON-RPC session and verifies that stdout carries protocol JSON only, that no tool fault escapes as a JSON-RPC error, and that command injection and workspace escape attempts are refused before execution.
+`scripts/smoke.mjs` drives a real stdio JSON-RPC session against the built entrypoint and verifies that stdout carries protocol JSON only, that no tool fault escapes as a JSON-RPC error, and that command injection and workspace escape attempts are refused before execution.
 
 ## License
 

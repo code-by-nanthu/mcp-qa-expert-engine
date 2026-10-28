@@ -8,7 +8,8 @@
     "mcp-qa-expert-engine": "./index.js"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "lib/"
   ],
   "scripts": {
     "test": "node scripts/smoke.mjs"
@@ -27,12 +28,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com"
+    "url": "git+https://github.com/code-by-nanthu/mcp-qa-expert-engine.git"
   },
   "bugs": {
-    "url": "https://github.com"
+    "url": "https://github.com/code-by-nanthu/mcp-qa-expert-engine/issues"
   },
-  "homepage": "https://github.com",
+  "homepage": "https://github.com/code-by-nanthu/mcp-qa-expert-engine#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
   },
