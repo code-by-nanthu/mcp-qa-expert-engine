@@ -1,0 +1,31 @@
+{
+  "name": "mcp-qa-expert-engine",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Universal QA Testing & Strategy skill for AI coding agents",
+  "main": "index.js",
+  "bin": {
+    "mcp-qa-expert-engine": "./index.js"
+  },
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "qa",
+    "testing",
+    "claude-code"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
