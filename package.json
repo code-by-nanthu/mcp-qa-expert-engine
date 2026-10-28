@@ -5,7 +5,7 @@
   "description": "Universal QA Testing & Strategy skill for AI coding agents",
   "main": "index.js",
   "bin": {
-    "mcp-qa-expert-engine": "./index.js"
+    "mcp-qa-expert-engine": "index.js"
   },
   "files": [
     "index.js",
