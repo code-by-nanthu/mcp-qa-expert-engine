@@ -1,6 +1,6 @@
 {
   "name": "mcp-qa-expert-engine",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "description": "Universal QA Testing & Strategy skill for AI coding agents",
   "main": "index.js",
@@ -11,7 +11,10 @@
     "index.js"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "node scripts/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [
     "mcp",
@@ -20,8 +23,16 @@
     "testing",
     "claude-code"
   ],
-  "author": "Your Name",
+  "author": "code-by-nanthu",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com"
+  },
+  "bugs": {
+    "url": "https://github.com"
+  },
+  "homepage": "https://github.com",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
   },
