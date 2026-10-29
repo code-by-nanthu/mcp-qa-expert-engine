@@ -21,8 +21,10 @@ import { ToolInputError } from "./lib/errors.js";
 import { toolError } from "./lib/format/result.js";
 import { HANDLERS, TOOLS } from "./lib/tools/registry.js";
 
+const SERVER_VERSION = "1.3.0";
+
 const server = new Server(
-  { name: "qa-expert-engine", version: "1.2.1" },
+  { name: "qa-expert-engine", version: SERVER_VERSION },
   { capabilities: { tools: {} } }
 );
 
@@ -63,7 +65,7 @@ async function run() {
   await server.connect(transport);
   // stderr only — stdout is reserved for the JSON-RPC stream.
   console.error(
-    `QA Expert MCP Server running via stdio. ${TOOLS.length} tools registered. Workspace: ${WORKSPACE_ROOT}`
+    `QA Expert MCP Server v${SERVER_VERSION} running via stdio. ${TOOLS.length} tools registered. Workspace: ${WORKSPACE_ROOT}`
   );
 }
 

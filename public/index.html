@@ -99,7 +99,7 @@ tailwind.config = {
   <div class="relative mx-auto max-w-6xl px-5 pb-16 pt-16 sm:pt-20">
 
     <div class="flex flex-wrap items-center gap-2 text-[13px]">
-      <span class="rounded-full border border-accept/30 bg-accept/10 px-2.5 py-1 font-mono font-medium text-accept">v1.2.1</span>
+      <span class="rounded-full border border-accept/30 bg-accept/10 px-2.5 py-1 font-mono font-medium text-accept">v1.3.0</span>
       <span class="rounded-full border border-edgeSoft px-2.5 py-1 text-muted">MIT licensed</span>
       <span class="rounded-full border border-edgeSoft px-2.5 py-1 text-muted">Node 18+</span>
       <span class="rounded-full border border-edgeSoft px-2.5 py-1 text-muted">Zero config</span>
@@ -449,9 +449,17 @@ tailwind.config = {
     <p class="mt-6 max-w-reading text-[14px] leading-relaxed text-muted">
       Restart the editor afterwards &mdash; most clients only read MCP config at startup.
       Then ask <span class="text-ink">&ldquo;what QA tools do you have?&rdquo;</span> and you should see eight.
-      To pin a version, append
-      <code class="rounded bg-raised px-1.5 py-0.5 font-mono text-[13px] text-ink">@1.2.1</code>
-      to the package name.
+    </p>
+
+    <p class="mt-4 max-w-reading text-[14px] leading-relaxed text-muted">
+      <span class="font-medium text-ink">Updating.</span> Restart your editor and you get the
+      latest release &mdash; the server is a long-lived process, so a new version is only
+      picked up when it restarts. Check which one you are on in your editor&rsquo;s MCP log:
+      it announces
+      <code class="rounded bg-raised px-1.5 py-0.5 font-mono text-[13px] text-ink">QA Expert MCP Server v1.3.0</code>
+      on startup. Prefer a fixed build? Append
+      <code class="rounded bg-raised px-1.5 py-0.5 font-mono text-[13px] text-ink">@1.3.0</code>
+      to the package name and bump it deliberately.
     </p>
   </div>
 </section>
@@ -481,7 +489,8 @@ tailwind.config = {
             Reads a function signature, TypeScript interface, git diff or markdown requirement
             list. Understands numeric ranges, length ranges, exact lengths and enum unions.
             Returns boundary value cases, equivalence partitions, a decision table, a state
-            transition model and exploratory charters.
+            transition model and exploratory charters &mdash; and flags any parameter whose
+            boundary the specification never stated, rather than inventing one.
           </p>
           <dl class="mt-4 space-y-1.5 border-t border-edge pt-3.5 font-mono text-[12.5px]">
             <div class="flex gap-2"><dt class="text-structure">codeSnippet</dt><dd class="text-accept">required</dd></div>
@@ -710,7 +719,7 @@ tailwind.config = {
       </div>
       <div>
         <h3 class="flex items-center gap-2 font-semibold"><i class="fa-solid fa-flask-vial text-accept" aria-hidden="true"></i>Verification</h3>
-        <p class="mt-2.5 text-[14px] leading-relaxed text-muted">124 checks cover the protocol, all eight tools, and every injection and traversal case shown above.</p>
+        <p class="mt-2.5 text-[14px] leading-relaxed text-muted">135 checks cover the protocol, all eight tools, and every injection and traversal case shown above.</p>
       </div>
     </div>
 
@@ -720,7 +729,8 @@ tailwind.config = {
         <li><span class="font-medium text-ink">No tools listed.</span> Restart the editor &mdash; most clients only read MCP config at startup.</li>
         <li><span class="font-medium text-ink">Command not found.</span> Check <code class="font-mono text-[12.5px] text-structure">node --version</code> reports 18 or higher and that npx is on your PATH.</li>
         <li><span class="font-medium text-ink">A command was refused.</span> That is the sanitiser. Send a single runner invocation with no chaining or redirection.</li>
-        <li><span class="font-medium text-ink">Want to see it directly?</span> Run <code class="font-mono text-[12.5px] text-structure">npx -y mcp-qa-expert-engine</code> in a terminal; it reports the tool count on stderr and waits for JSON-RPC on stdin.</li>
+        <li><span class="font-medium text-ink">Still on an old version?</span> Restart the editor first. If it persists, <code class="font-mono text-[12.5px] text-structure">npx</code> is serving a cached install &mdash; clear it with <code class="font-mono text-[12.5px] text-structure">npm cache clean --force</code>.</li>
+        <li><span class="font-medium text-ink">Want to see it directly?</span> Run <code class="font-mono text-[12.5px] text-structure">npx -y mcp-qa-expert-engine</code> in a terminal; it reports its version and tool count on stderr and waits for JSON-RPC on stdin.</li>
       </ul>
     </div>
   </div>
@@ -777,7 +787,7 @@ tailwind.config = {
 
   <div class="mt-10 flex flex-col gap-2 border-t border-edge pt-6 text-[13px] text-faint sm:flex-row sm:items-center sm:justify-between">
     <p>Released under the MIT licence.</p>
-    <p class="font-mono">mcp-qa-expert-engine@1.2.1</p>
+    <p class="font-mono">mcp-qa-expert-engine@1.3.0</p>
   </div>
 </footer>
 

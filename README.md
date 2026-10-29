@@ -71,6 +71,7 @@ Parses function signatures (JS/TS/Python), TypeScript interfaces, git diffs, and
 - **Decision table** — exhaustive combinations of finite-domain conditions
 - **State transition model** — transition matrix with ILLEGAL cells as negative tests, plus threshold transitions for lockout counters
 - **Exploratory charters** for the human tester
+- **Requirements gaps** — every parameter with no stated bound, which platform limits were substituted in its place, and the question to put back to the specification
 - **Coverage summary** flagging unresolved types
 
 ### `generate_manual_test_plan`
@@ -151,11 +152,35 @@ Dependency direction is strictly one-way: `tools -> design/emitters -> analysis 
 
 ```bash
 npm ci
-npm test        # 124-check smoke suite
+npm test        # 135-check smoke suite
 node index.js   # boots silently on stdio
 ```
 
 `scripts/smoke.mjs` drives a real stdio JSON-RPC session against the built entrypoint and verifies that stdout carries protocol JSON only, that no tool fault escapes as a JSON-RPC error, and that command injection and workspace escape attempts are refused before execution.
+
+## Updating
+
+If you installed without pinning a version, **restart your editor**. The server runs
+as a long-lived process started at editor launch, so a new version is only picked up
+when that process restarts — `npx` then resolves the latest release.
+
+To confirm which version you are on, check your editor's MCP server log. The server
+announces itself on startup:
+
+```
+QA Expert MCP Server v1.3.0 running via stdio. 8 tools registered.
+```
+
+If it still reports an old version after a restart, `npx` is serving a cached install.
+Clear it:
+
+```bash
+npm cache clean --force
+```
+
+If you pinned a version (`mcp-qa-expert-engine@1.2.0`), update the pin in your MCP
+config and restart. Pinning trades automatic updates for reproducibility — reasonable
+for a team that wants every member on an identical build.
 
 ## Platform Support
 
@@ -173,6 +198,16 @@ Windows behaviour has not been verified on a Windows host. If you run it there,
 a report either way is welcome.
 
 ## Changelog
+
+### 1.3.0
+
+- Added: a **Requirements Gaps** review, emitted before the test cases. Boundary Value Analysis is only as good as the stated boundary; where the input declares none, the generated cases fall back to platform limits (int32 max, 2^53, common column widths), which exercise the runtime rather than the business rule. That substitution is now named explicitly, per parameter, with the question to put back to the specification.
+- The report distinguishes a wholly missing range from a missing upper or lower bound, and lists only the probes actually substituted for that gap.
+- Unstated nullability is reported separately, with the assumption made on the reader's behalf.
+- A fully specified input gets an explicit all-clear rather than silence.
+- Added: the boot banner now states the running version, so a user can tell which build their editor started.
+- Added: an **Updating** section — how a new release reaches an existing install, and what to do if npx serves a cached one.
+- Eleven checks added; suite is now 135.
 
 ### 1.2.1
 

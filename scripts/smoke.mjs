@@ -300,6 +300,10 @@ const requests = [
   call(140, "generate_qa_matrix", { codeSnippet: "function applyPromoCode(code) {\n  // code: 6-12 characters\n}" }),
   call(141, "generate_qa_matrix", { codeSnippet: "function setNote(note) {}" }),
 
+  call(150, "generate_qa_matrix", { codeSnippet: "function setQuota(uploadCount, title, when) {}" }),
+  call(151, "generate_qa_matrix", { codeSnippet: "function setQuota(uploadCount, tier) {\n  // uploadCount: min 1, max 50, required\n  // tier one of: free, pro\n}" }),
+  call(152, "generate_qa_matrix", { codeSnippet: "function setQuota(uploadCount) {\n  // uploadCount: min 1\n}" }),
+
   // Negative: missing / malformed arguments
   call(30, "generate_qa_matrix", {}),
   call(31, "parse_error_logs", {}),
@@ -357,7 +361,15 @@ check("stdout contains only parseable JSON-RPC lines", () => {
 });
 
 check("boot diagnostics go to stderr, not stdout", () => {
-  assertIncludes(session.stderr, "QA Expert MCP Server running", "stderr banner");
+  assertIncludes(session.stderr, "QA Expert MCP Server", "stderr banner");
+});
+
+check("the boot banner states the running version", () => {
+  // Users diagnose "am I on the latest?" from this line in their MCP log.
+  assert(
+    /QA Expert MCP Server v\d+\.\d+\.\d+ running/.test(session.stderr),
+    `banner must carry a version: ${session.stderr.split("\n")[0]}`
+  );
 });
 
 check("initialize handshake succeeds", () => {
@@ -1224,6 +1236,74 @@ check("module id uses a whole word, not a mid-word slice", () => {
   const out = text(get(140));
   assert(/TC_PROMO_001/.test(out), "expected TC_PROMO_001");
   assert(!/TC_PROMOCOD/.test(out), "module code truncated mid-word");
+});
+
+group("Requirement gaps");
+
+check("an unstated bound is reported before the matrix, not buried in it", () => {
+  const out = text(get(150));
+  assertIncludes(out, "REQUIREMENTS GAPS", "gaps section");
+  const gapsAt = out.indexOf("REQUIREMENTS GAPS");
+  const matrixAt = out.indexOf("BOUNDARY VALUE ANALYSIS");
+  assert(gapsAt < matrixAt, "gaps must appear before the test cases, not after");
+});
+
+check("each unbounded parameter names what is missing", () => {
+  const out = text(get(150));
+  assertIncludes(out, "no numeric range", "numeric gap");
+  assertIncludes(out, "no length limit", "string gap");
+  assertIncludes(out, "type could not be inferred", "unresolved type");
+});
+
+check("the substituted platform probes are disclosed", () => {
+  const out = text(get(150));
+  assertIncludes(out, "2147483647", "int32 probe disclosed");
+  assertIncludes(out, "255 and 65536 characters", "string probe disclosed");
+  assertIncludes(out, "exercise the runtime rather", "substitution explained");
+});
+
+check("it asks a concrete question per gap", () => {
+  const out = text(get(150));
+  assertIncludes(out, "What are the minimum and maximum values for uploadCount?", "numeric question");
+  assertIncludes(out, "What is the maximum length of title?", "length question");
+});
+
+check("a fully specified input reports no gaps", () => {
+  const out = text(get(151));
+  assertIncludes(out, "Every parameter carries a stated bound", "clean confirmation");
+  assertIncludes(out, "Unbounded parameters  : 0", "coverage reflects it");
+  assert(!/no numeric range/.test(out), "must not invent a gap");
+});
+
+check("a half-specified bound names only the missing side", () => {
+  const out = text(get(152));
+  assertIncludes(out, "no maximum", "upper gap");
+  assert(!/no numeric range/.test(out), "min was declared, so the range is not wholly missing");
+  assert(!/no minimum/.test(out), "min was declared");
+});
+
+check("probes match the specific gap, not the whole type", () => {
+  const out = text(get(152));
+  const row = out.split("\n").find((l) => /uploadCount.*no maximum/.test(l));
+  assert(row, "no gap row for uploadCount");
+  assert(!/0, -1/.test(row), "lower probes listed though the minimum was declared");
+  assertIncludes(row, "2147483647", "upper probes listed");
+});
+
+check("singular and plural are both correct", () => {
+  assertIncludes(text(get(152)), "1 of 1 parameter has", "singular");
+  assertIncludes(text(get(150)), "3 of 3 parameters have", "plural");
+});
+
+check("unstated nullability is reported separately, not as a bound gap", () => {
+  const out = text(get(150));
+  assertIncludes(out, "Nullability is unstated for", "nullability note");
+  assertIncludes(out, "assume the parameter is not nullable", "assumption disclosed");
+});
+
+check("coverage summary carries the unbounded count", () => {
+  assertIncludes(text(get(150)), "Unbounded parameters  : 3", "count");
+  assertIncludes(text(get(150)), "see REQUIREMENTS GAPS", "pointer");
 });
 
 group("Negative — input validation");
